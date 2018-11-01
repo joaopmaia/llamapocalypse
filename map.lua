@@ -1,12 +1,14 @@
 
 Map = {
   _map = {},
+  _ground = {},
   _tileset = {},
   _dirty = false,
   _x = 0,
   _y = 0,
   _xtiles = 0,
   _ytiles = 0,
+  _speed = 100,
   width = 0,
   height = 0,
 }
@@ -28,6 +30,9 @@ function Map:_init (...)
   self.tile_height = args.tile_height or 64
   self._xtiles = math.ceil(self.width / self.tile_width) + 1
   self._ytiles = math.ceil(self.height / self.tile_height)
+  self._ground.body = love.physics.newBody(world, self.width / 2, self.height - self.tile_height / 2);
+  self._ground.shape = love.physics.newRectangleShape(self.width, self.tile_height)
+  self._ground.fixture = love.physics.newFixture(self._ground.body, self._ground.shape)
   if self.width % self.tile_width == 0 then
     self._xtiles = self._xtiles + 1
   end
@@ -91,13 +96,13 @@ function Map:draw ()
         end
       end
     end
+    love.graphics.polygon("fill", self._ground.body:getWorldPoints(self._ground.shape:getPoints()))
     self._dirty = false
   end
 end
 
-function Map:move (dx, dy)
-  self._x = self._x + dx * self.tile_width
-  self._y = self._y + dy * self.tile_height
+function Map:move (dt)
+  self._x = self._x + self._speed * dt
   self._dirty = true
 end
 
