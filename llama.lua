@@ -7,6 +7,8 @@ Llama = {
   _fixture = nil,
   _interval = 0.05,
   _sprite_control = 0,
+  _jumps = 0,
+  _jump_tick = 0,
   world = nil,
   sprite_width = 0,
   sprite_heigth = 0,
@@ -26,9 +28,10 @@ function Llama:_init (...)
   self.world = args.world
   self.sprite_width = args.sprite_width or 50
   self.sprite_heigth = args.sprite_heigth or self.sprite_width
-  self._body = love.physics.newBody(self.world, 100, 100, "dynamic")
+  self._body = love.physics.newBody(self.world, 800 * 0.25, 600 * 0.25, "dynamic")
   self._shape = love.physics.newRectangleShape(self.sprite_width, self.sprite_heigth)
   self._fixture = love.physics.newFixture(self._body, self._shape, 1)
+  self._fixture:setUserData("llama")
   self._quad = love.graphics.newQuad(0, 0,
                                      self.sprite_width, self.sprite_heigth,
                                      self.sprite_width, self.sprite_heigth)
@@ -52,19 +55,20 @@ function Llama:move (dt)
   end
 end
 
-last_time = 0
-force_count = 0
+function Llama:reset_jumps ()
+  self._jumps = 0
+end
 
-function Llama:apply_force(time, fx, fy)
-  if last_time == 0 then
-    last_time = time
+function Llama:jump(time)
+  if self._jump_tick == 0 then
+    self._jump_tick = time
   end
-  dt = time - last_time
-  if dt > 0.04 then
-    print(dt)
-    self._body:applyLinearImpulse(fx, fy)
+  dt = time - self._jump_tick
+  if self._jumps == 0 or dt > 0.2 and self._jumps < 2 then
+    self._body:applyLinearImpulse(0, -1800)
+    self._jumps = self._jumps + 1
   end
-  last_time = time
+  self._jump_tick = time
 end
 
 return Llama

@@ -30,9 +30,10 @@ function Map:_init (...)
   self.tile_height = args.tile_height or 64
   self._xtiles = math.ceil(self.width / self.tile_width) + 1
   self._ytiles = math.ceil(self.height / self.tile_height)
-  self._ground.body = love.physics.newBody(world, self.width / 2, self.height - self.tile_height / 2);
+  self._ground.body = love.physics.newBody(world, self.width / 2, self.height - (self.tile_height / 2));
   self._ground.shape = love.physics.newRectangleShape(self.width, self.tile_height)
   self._ground.fixture = love.physics.newFixture(self._ground.body, self._ground.shape)
+  self._ground.fixture:setUserData("ground")
   if self.width % self.tile_width == 0 then
     self._xtiles = self._xtiles + 1
   end

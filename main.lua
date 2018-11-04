@@ -7,6 +7,7 @@ local map, llama
 function love.load()
   love.physics.setMeter(64)
   world = love.physics.newWorld(0, 2000, true)
+  world:setCallbacks(beginContact, endContact, preSolve, postSolve)
   map = Map { tileset = { "LAB/wall/tile065.png",
                           "LAB/wall/tile066.png",
                           "LAB/wall/tile068.png",
@@ -20,24 +21,37 @@ function love.load()
                   sprites = llama_sprite }
 end
 
-
 function love.update(dt)
   time = time + dt
   world:update(dt)
   map:move(dt)
   llama:move(dt)
-  if love.keyboard.isDown("up") then
-    llama:apply_force(time, 0, -2000)
-  end
-  if love.keyboard.isDown("left") then
-    llama:apply_force(time, -1000, 0)
-  end
-  if love.keyboard.isDown("right") then
-    llama:apply_force(time, 1000, 0)
+  if love.keyboard.isDown("space") then
+    --llama:apply_force(time, 0, -2000)
+    llama:jump(time)
   end
 end
 
 function love.draw()
   map:draw()
   llama:draw()
+end
+
+function beginContact(a, b, coll)
+  if a:getUserData() == "ground" and b:getUserData() == "llama" or
+     a:getUserData() == "llama" or b:getUserData() == "ground" then
+    llama:reset_jumps()
+  end
+end
+
+function endContact(a, b, coll)
+
+end
+
+function preSolve(a, b, coll)
+
+end
+
+function postSolve(a, b, coll)
+
 end
