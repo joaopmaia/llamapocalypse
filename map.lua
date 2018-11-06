@@ -1,16 +1,17 @@
 
 Map = {
+  _world = {},
   _map = {},
   _ground = {},
-  _tileset = {},
+  _wall_tileset = {},
+  _ground_tileset = {},
   _dirty = false,
   _x = 0,
   _y = 0,
   _xtiles = 0,
   _ytiles = 0,
-  _speed = 100,
-  width = 0,
-  height = 0,
+  _width = 0,
+  _height = 0,
 }
 
 Map.__index = Map
@@ -22,27 +23,29 @@ setmetatable (Map, {
     return self
   end })
 
-function Map:_init (...)
-  local args = ...
-  self.width = args.width or 800
-  self.height = args.height or 600
+function Map:_init (args)
+  self._width = args.width or 800
+  self._height = args.height or 600
   self.tile_width = args.tile_width or 64
   self.tile_height = args.tile_height or 64
-  self._xtiles = math.ceil(self.width / self.tile_width) + 1
-  self._ytiles = math.ceil(self.height / self.tile_height)
-  self._ground.body = love.physics.newBody(world, self.width / 2, self.height - (self.tile_height / 2));
-  self._ground.shape = love.physics.newRectangleShape(self.width, self.tile_height)
-  self._ground.fixture = love.physics.newFixture(self._ground.body, self._ground.shape)
-  self._ground.fixture:setUserData("ground")
-  if self.width % self.tile_width == 0 then
+  self._xtiles = math.ceil(self._width / self.tile_width) + 1
+  self._ytiles = math.ceil(self._height / self.tile_height)
+  self._ground = math.ceil((args.ground or 400) / self.tile_height)
+  if self._width % self.tile_width == 0 then
     self._xtiles = self._xtiles + 1
   end
-  if self.height % self.tile_height == 0 then
+  if self._height % self.tile_height == 0 then
     self._ytiles = self._ytiles + 1
   end
-  if args.tileset then
-    for index, file in pairs(args.tileset) do
-      self._tileset[index] = love.graphics.newImage(file)
+  if args.wall_tileset then
+    for index, file in pairs(args.wall_tileset) do
+      self._wall_tileset[index] = love.graphics.newImage(file)
+    end
+    self:_init_map()
+  end
+  if args.ground_tileset then
+    for index, file in pairs(args.ground_tileset) do
+      self._ground_tileset[index] = love.graphics.newImage(file)
     end
     self:_init_map()
   end
@@ -52,7 +55,7 @@ function Map:_init_map ()
   for x = 0, self._xtiles do
     self._map[x] = {}
     for y = 0, self._ytiles do
-      self._map[x][y] = love.math.random(#self._tileset)
+      self._map[x][y] = love.math.random(#self._wall_tileset)
     end
   end
   self._dirty = true
@@ -62,7 +65,7 @@ function Map:_pivot_map ()
   for x = 0, self._xtiles do
     for y = 0, self._ytiles do
       if x == self._xtiles then
-        self._map[x][y] = love.math.random(#self._tileset)
+        self._map[x][y] = love.math.random(#self._wall_tileset)
       else
         self._map[x][y] = self._map[x + 1][y]
       end
@@ -87,7 +90,12 @@ function Map:draw ()
                                        self.tile_width, self.tile_height)
     for x = 0, self._xtiles do
       for y = 0, self._ytiles do
-        local tile = self._tileset[self._map[x][y]]
+        local tile = nil
+        if y == self._ground then
+          tile = self._ground_tileset[1]
+        else
+          tile = self._wall_tileset[self._map[x][y]]
+        end
         if x == 0 then
           love.graphics.draw(tile, first_quad, 0, y * self.tile_height)
         elseif x == self._xtiles then
@@ -97,14 +105,21 @@ function Map:draw ()
         end
       end
     end
-    love.graphics.polygon("fill", self._ground.body:getWorldPoints(self._ground.shape:getPoints()))
     self._dirty = false
   end
 end
 
-function Map:move (dt)
-  self._x = self._x + self._speed * dt
+function Map:update (dt)
+  self._x = self._x + self:get_world():get_speed() * dt
   self._dirty = true
+end
+
+function Map:get_world ()
+  return self._world
+end
+
+function Map:set_world (world)
+  self._world = world
 end
 
 return Map
