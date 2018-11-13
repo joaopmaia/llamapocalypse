@@ -5,7 +5,8 @@ Llama = {
   _tick = 0,
   _quad = nil,
   _interval = 0.05,
-  _sprite_control = 0
+  _sprite_control = 0,
+  _zindex = 1
 }
 
 Llama.__index = Llama
@@ -25,6 +26,7 @@ function Llama:_init (args)
   self:set_collision_list({ "scientist" })
   self:set_max_height(args.max_height or -950)
   self._sprites = {}
+  self._zindex = args.zindex
   if args.sprites then
     for index, file in pairs(args.sprites) do
       self._sprites[index] = love.graphics.newImage(file)
@@ -34,11 +36,10 @@ function Llama:_init (args)
   end
   self._quad = love.graphics.newQuad(0, 0,
                                      self:get_width(), self:get_height(),
-                                     self:get_width(), self:get_height())
+                                     self:get_width() , self:get_height())
 end
 
 function Llama:draw ()
-  love.graphics.rectangle("fill", self:get_x(), self:get_y(), self:get_width(), self:get_height())
   love.graphics.draw(self._sprites[self._sprite_control], self._quad, self:get_x(), self:get_y())
 end
 

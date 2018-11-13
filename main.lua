@@ -3,10 +3,20 @@ World = require("world")
 Map = require("map")
 Llama = require("actors.llama")
 Scientist = require("actors.scientist")
+Vent = require("actors.vent")
+Console = require("actors.console")
 
 time = 0
 speed = 200
-local world, map, llama, scientist
+aux = 0
+local world, map, llama, scientist, vent, console
+
+-- A list of drawable objects
+local drawList = {}
+
+-- Sorting function
+function drawSort(a,b) return a.zindex < b.zindex end
+
 
 function load_llama_sprites ()
   local llama_sprites = {}
@@ -34,28 +44,69 @@ function love.load()
               ground_tileset = { "LAB/wall/tile101.png" },
               ground = 350 }
 
-  llama = Llama { x = love.math.random(love.graphics.getWidth() * 0.7),
+  drawList[1] = Llama { x = 100,
                   y = 200,
+                  zindex = 0,
                   sprites = load_llama_sprites() }
 
-  scientist = Scientist { x = 900,
-                          y = 400,
-                          sprites = "Scientist-Comp/Animations.png" }
+ 
 
   world:set_map(map)
-  world:add_actor(llama)
-  world:add_actor(scientist)
 end
 
 function love.update(dt)
   world:update(dt)
-  --map:move(dt, speed)
-  if love.keyboard.isDown("space") then
-    llama:jump()
-  end
+  
+  drawList[2] = Scientist { x = 900,
+                          y = 400,
+                          zindex = 1,
+                          sprites = "Scientist-Comp/Animations.png" }
+
+  drawList[3] = Console { x = 900,
+                      y = 400,
+                      zindex = 1,
+                      sprites = "industrial/console/console-active.png" }
+  drawList[4]= Vent {x = 900,
+               y = 400,
+               zindex = 1,
+               sprites = "industrial/vent/vent.png"}
 end
 
 function love.draw()
   --map:draw()
+
+  local prob = love.math.random(1,1000)
+  local prob2 = love.math.random(1,1000)
+  local prob3 = love.math.random(1,1000)
+  local drawn = false -- true when the character has been drawn
+ 
+  for i,v in ipairs(drawList) do
+      if not drawn then
+          world:add_actor(drawList[i])
+          drawn = true
+      end
+  if prob < 5 then
+    print("SCIENTIST")
+    world:add_actor(drawList[1])
+  end
+  if prob2 < 10 then
+    print("VENT")
+    world:add_actor(drawList[3])
+  end
+  if prob3 < 10 then
+    print("CONSOLE")
+    world:add_actor(drawList[2])
+  end
+   end
+ 
+  if not drawn then -- if the person is below all objects it won't be drawn within the for loop
+    world:add_actor(drawList[i])
+  end
+
+  --map:move(dt, speed)
+  if love.keyboard.isDown("space") then
+    drawList[1]:jump()
+  end
   world:draw()
+
 end
