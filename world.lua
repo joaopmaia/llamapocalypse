@@ -65,6 +65,9 @@ function World:update(dt)
       end
       actor:update(dt)
     end
+    table.sort(self._actors, function (a, b)
+      return a:get_z_index() < b:get_z_index()
+    end)
     for _, actor in pairs(self._actors) do
       actor:check_collision(self._actors)
     end

@@ -5,10 +5,13 @@ local Actor = {
   _collision_list = {},
   _x = 0,
   _y = 0,
+  _z_index = 0,
   _width = 0,
   _height = 0,
   _max_height = 0,
-  _y_velocity = 0
+  _y_velocity = 0,
+  _collision_cb = nil,
+  _prevent_collision = {}
 }
 
 Actor.__index = Actor
@@ -50,10 +53,19 @@ function Actor:set_collision_list (coll_list)
   self._collision_list = coll_list
 end
 
+function Actor:set_collision_cb(func)
+  self._collision_cb = func
+end
+
 function Actor:can_collide (obj)
   if obj and self:get_type() and self:get_collision_list() then
     for _, coll_type in pairs(self:get_collision_list()) do
       if obj:get_type() == coll_type then
+        for _, actor in pairs(self._prevent_collision) do
+          if actor == obj then
+            return false
+          end
+        end
         return true
       end
     end
@@ -75,7 +87,8 @@ function Actor:check_collision (actors)
   if actors then
     for _, actor in pairs(actors) do
       if self ~= actor and self:can_collide(actor) and self:is_inside_boundaries(actor) then
-        print("coll")
+        table.insert(self._prevent_collision, actor)
+        self._collision_cb()
       end
     end
   end
@@ -95,6 +108,14 @@ end
 
 function Actor:set_y (y)
   self._y = y
+end
+
+function Actor:get_z_index ()
+  return self._z_index
+end
+
+function Actor:set_z_index (z_index)
+  self._z_index = z_index
 end
 
 function Actor:get_width ()
@@ -130,7 +151,7 @@ function Actor:set_y_velocity (y_velocity)
 end
 
 function Actor:draw ()
-  local dummy = nil
+  local _dummy = nil
 end
 
 function Actor:update (dt)

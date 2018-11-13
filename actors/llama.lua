@@ -22,6 +22,7 @@ function Llama:_init (args)
   assert(args.x and args.y)
   Actor._init (self, args.x, args.y)
   self:set_type("llama")
+  self:set_z_index(2)
   self:set_collision_list({ "scientist" })
   self:set_max_height(args.max_height or -950)
   self._sprites = {}
@@ -38,7 +39,7 @@ function Llama:_init (args)
 end
 
 function Llama:draw ()
-  love.graphics.rectangle("fill", self:get_x(), self:get_y(), self:get_width(), self:get_height())
+  --love.graphics.rectangle("fill", self:get_x(), self:get_y(), self:get_width(), self:get_height())
   love.graphics.draw(self._sprites[self._sprite_control], self._quad, self:get_x(), self:get_y())
 end
 
