@@ -37,7 +37,7 @@ function clone_llama()
   llama:set_collision_cb(clone_llama)
   table.insert(llamas, llama)
   world:add_actor(llama)
-  if llama_count == 400 then
+  if llama_count == 4 then
     gamestate = "over"
   end
 end
@@ -112,10 +112,10 @@ function love.update(dt)
         world:add_actor(laser)
       end
       if decor == 3 then
-        local engi = Engi { x = 900,
+        local cons = Console { x = 900,
                                y = 400,
-                               sprites = "industrial/engineer character/engineer-idle.png" }
-        world:add_actor(engi)
+                               sprites = "industrial/console/console-active.png" }
+        world:add_actor(cons)
       end
     end
     if timerVent < ven then 
