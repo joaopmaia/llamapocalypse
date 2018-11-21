@@ -84,6 +84,9 @@ function love.update(dt)
     if love.keyboard.isDown("space") then
       gamestate = "play"
     end
+    if love.keyboard.isDown("q") then
+      gamestate = "easteregg"
+    end
   elseif gamestate == "over" then
     endtick = endtick + dt/dt
   if endtick > 8 then
@@ -96,6 +99,10 @@ function love.update(dt)
     if love.keyboard.isDown("space") then
       gamestate = "title"
       love.event.quit( "restart" )
+    end
+  elseif gamestate == "easteregg" then
+    if love.keyboard.isDown("space") then
+      gamestate = "title"
     end
   else
     con = dt + con
@@ -163,6 +170,9 @@ function love.draw()
   elseif gamestate == "over" then
     love.graphics.draw(end_sprites[endcontrol], 0,0)
     love.graphics.print("Game Over! Aperte espaço para ir ao menu inicial.", 285, 290 )
+  elseif gamestate == "easteregg" then
+    local easteregg = love.graphics.newImage("Decoration/easteregg.png")
+    love.graphics.draw(easteregg, 0, 0)
   else
     world:draw()
     love.graphics.print("Pontuação: " .. pontos, 550, 10, 0, 2 )
