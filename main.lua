@@ -32,6 +32,9 @@ end
 
 function clone_llama()
   llama_count = llama_count + 1
+  if llama_count < 4 then
+    pew:play()
+  end
   local llama = Llama { x = love.math.random(love.graphics.getWidth() * 0.7),
                         y = 200,
                         sprites = load_llama_sprites() }
@@ -39,6 +42,7 @@ function clone_llama()
   table.insert(llamas, llama)
   world:add_actor(llama)
   if llama_count == 4 then
+    pewpew:play()
     gamestate = "over"
   end
 end
@@ -46,6 +50,10 @@ gamestate = "title"
 music = {}
 function love.load()
   music = love.audio.newSource("Decoration/lab2.wav", "stream")
+  music:setLooping(true)
+  musicegg = love.audio.newSource("Decoration/easteregg.wav", "stream")
+  pewpew = love.audio.newSource("Decoration/pewpew.wav", "stream")
+  pew = love.audio.newSource("Decoration/porta.ogg", "stream")
   world = World { width = love.graphics.getWidth(),
                   height = love.graphics.getHeight(), 
                   ground = 430 }
@@ -78,6 +86,9 @@ end
  decor = 0
  endtick = 0
  endcontrol = 0
+ cien = 0
+ cienTimer = 0
+ level = 0
  
 
 function love.update(dt)
@@ -103,28 +114,32 @@ function love.update(dt)
       love.event.quit( "restart" )
     end
   elseif gamestate == "easteregg" then
-    if love.keyboard.isDown("space") then
+    musicegg:play()
+    if love.keyboard.isDown("w") then
+      musicegg:stop()
       gamestate = "title"
     end
   else
     music:play()
     con = dt + con
-    timerCon = love.math.random(1,6)
+    cien = cien + dt
+    level = level + dt
+    cienTimer = love.math.random(1,10)
     print(timerCon)
     ven = dt + ven
-    timerVent = math.random(1,2)
     decor = math.random(1,3)
     pontos = pontos + dt/dt
     local prob_sci = love.math.random(1,1000)
 
-    if prob_sci > 5 then
+    if cienTimer < cien then
+      cien = 0
       local sci = Scientist { x = 900,
                               y = 400,
                               sprites = "Scientist-Comp/Animations.png" }
       world:add_actor(sci)
     end
 
-    if timerCon < con then 
+    if love.math.random(1,6) < con then 
       con = 0
       if decor == 1 then 
         local cons = Console { x = 900,
@@ -146,7 +161,7 @@ function love.update(dt)
       end
     end
 
-    if timerVent < ven then 
+    if math.random(1,2) < ven then 
       ven = 0
       local vent = Vent { x = 900,
                              y = 400,
