@@ -43,8 +43,9 @@ function clone_llama()
   end
 end
 gamestate = "title"
+music = {}
 function love.load()
-  
+  music = love.audio.newSource("Decoration/lab2.wav", "stream")
   world = World { width = love.graphics.getWidth(),
                   height = love.graphics.getHeight(), 
                   ground = 430 }
@@ -89,6 +90,7 @@ function love.update(dt)
     end
   elseif gamestate == "over" then
     endtick = endtick + dt/dt
+    music:stop()
   if endtick > 8 then
     if endcontrol == 5 then
       endcontrol = 0
@@ -105,6 +107,7 @@ function love.update(dt)
       gamestate = "title"
     end
   else
+    music:play()
     con = dt + con
     timerCon = love.math.random(1,6)
     print(timerCon)
